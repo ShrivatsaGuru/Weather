@@ -63,8 +63,15 @@ const LocationSearch = () => {
       borderBottom: '1px solid #ccc',
       paddingBottom: '5px',
       marginBottom: '10px'
+    },
+    iconpos: {
+      width: '3px',
+      height: '3px',
+      marginLeft: '10px',
+      verticalAlign: 'middle'
     }
   };
+  
 
   const handleSearch = () => {
     if (!input) {
@@ -181,29 +188,74 @@ const LocationCoordinates = ({ pincode, lat, lon }) => {
     <>
       {weather && (
         <>
-          {/* Current Weather */}
-          <div style={{ flex: 1, padding: '20px', backgroundColor: '#ffffff', borderRadius: '8px', marginRight: '10px' }}>
-            <h3>Current Weather</h3>
-            <p><strong>Temperature:</strong> {weather.current.temperature}°C</p>
-            <p><strong>Humidity:</strong> {weather.current.humidity}%</p>
-            <p><strong>Wind Speed:</strong> {weather.current.windSpeed} m/s</p>
-            <p><strong>Description:</strong> {weather.current.description}</p>
-            <img src={require(`../assets/${weather.current.icon}.png`)} alt="Weather icon" />
-          </div>
+    
+          <div style={{ 
+  flex: 1, 
+  padding: '20px', 
+  backgroundColor: '#ffffff', 
+  borderRadius: '8px', 
+  marginRight: '10px', 
+  display: 'flex', 
+  justifyContent: 'space-between', 
+  alignContent:'flex-start'
+}}>
+
+  <div>
+    <h3>Current Weather</h3>
+    <p><strong>Temperature:</strong> {weather.current.temperature}°C</p>
+    <p><strong>Humidity:</strong> {weather.current.humidity}%</p>
+    <p><strong>Wind Speed:</strong> {weather.current.windSpeed}m/s </p>
+    <p><strong>Description:</strong> {weather.current.description}</p>
+  </div>
+
+ 
+  <div style={{ width: '80px', display: 'flex', justifyContent: 'center'}}>
+    <img 
+      src={require(`../assets/${weather.current.icon}.png`)} 
+      alt="Weather icon" 
+      style={{ width: '70px', height: '70px' }} 
+    />
+  </div>
+  </div>
   
-          {/* 5-Day Forecast */}
-          <div style={{ flex: 1, padding: '20px', backgroundColor: '#ffffff', borderRadius: '8px' }}>
-            <h3>5-Day Weather Forecast</h3>
-            {weather.dailyForecasts.map((day, index) => (
-              <div key={index} style={{ borderBottom: '1px solid #ccc', paddingBottom: '5px', marginBottom: '10px' }}>
-                <p><strong>{day.date}</strong></p>
-                <p>{day.summary}</p>
-                <p><strong>Temperature:</strong> {day.temperature}</p>
-                <p><strong>Humidity:</strong> {day.humidity}</p>
-                <p><strong>Wind Speed:</strong> {day.windSpeed} </p>
-                <p><strong>Description:</strong> {day.description}</p>
-                <img src={require(`../assets/${day.icon}.png`)} alt="Weather icon" />
-              </div>
+          <div style={{ 
+  flex: 1, 
+  padding: '20px', 
+  backgroundColor: '#ffffff', 
+  borderRadius: '8px'
+}}>
+  <h3>5-Day Weather Forecast</h3>
+  {weather.dailyForecasts.map((day, index) => (
+    <div key={index} 
+      style={{ 
+        borderBottom: '1px solid #ccc',
+        padding: '10px 0',
+        margin: '0',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between' 
+      }}
+    >
+     
+      <div style={{ flex: 1 }}>
+        <p><strong>{day.date}</strong></p>
+        <p>{day.summary}</p>
+        <p><strong>Temperature:</strong> {day.temperature}</p>
+        <p><strong>Humidity:</strong> {day.humidity}</p>
+        <p><strong>Wind Speed:</strong> {day.windSpeed} </p>
+        <p><strong>Description:</strong> {day.description}</p>
+      </div>
+
+      <div style={{ width: '80px', display: 'flex', justifyContent: 'center' }}>
+        <img 
+          src={require(`../assets/${day.icon}.png`)} 
+          alt="Weather icon" 
+          style={{ width: '70px', height: '70px' }} 
+        />
+
+
+                  </div>
+            </div>
             ))}
           </div>
         </>
