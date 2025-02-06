@@ -19,11 +19,11 @@ const LocationSearch = () => {
     },
     inputContainer: {
       display: 'flex',
+      gap: '10px',
       marginBottom: '20px'
     },
     input: {
       padding: '10px',
-      marginRight: '10px',
       border: '1px solid #ccc',
       borderRadius: '4px',
       width: '250px'
@@ -36,17 +36,33 @@ const LocationSearch = () => {
       borderRadius: '4px',
       cursor: 'pointer'
     },
-    resultTab: {
+    weatherContainer: {
+      display: 'flex',
+      justifyContent: 'space-between',
       width: '90%',
-      minHeight: '500px',
       backgroundColor: '#e6f2ff',
       marginTop: '20px',
       borderRadius: '8px',
       padding: '20px',
-      boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center'
+      boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+    },
+    currentWeather: {
+      flex: 1,
+      padding: '20px',
+      backgroundColor: '#ffffff',
+      borderRadius: '8px',
+      marginRight: '10px'
+    },
+    forecastContainer: {
+      flex: 1,
+      padding: '20px',
+      backgroundColor: '#ffffff',
+      borderRadius: '8px'
+    },
+    forecastItem: {
+      borderBottom: '1px solid #ccc',
+      paddingBottom: '5px',
+      marginBottom: '10px'
     }
   };
 
@@ -58,6 +74,7 @@ const LocationSearch = () => {
     setResult({
       type: /^\d+$/.test(input) ? 'Pincode' : 'City',
       name: input,
+      details: `Detailed information for location: ${input}`
     });
     setCoordinates({ pincode: input });
     setShowWeather(true);
@@ -90,21 +107,22 @@ const LocationSearch = () => {
 
       <DetectLocation onDetect={handleDetect} />
 
-      <div style={styles.resultTab}>
-        {result && (
-          <>
-            <h2>{result.name}</h2>
-            <p>Type: {result.type}</p>
-            <p>{result.details}</p>
-            {showWeather && <LocationCoordinates {...coordinates} />}
-          </>
-        )}
-        {!result && <p>Search results will appear here</p>}
-      </div>
+      {result && (
+        <div style={styles.weatherContainer}>
+          <LocationCoordinates {...coordinates} />
+        </div>
+      )}
     </div>
   );
 };
-
+// const getWeatherIcon = (iconCode) => {
+//   try {
+//     return require(`../assets/${iconCode}.png`);
+//   } catch (error) {
+//     console.error("Icon not found:", iconCode);
+//     return require(`../assets/01d.png`); // Add a default icon in assets
+//   }
+// };
 const LocationCoordinates = ({ pincode, lat, lon }) => {
   const [coordinates, setCoordinates] = useState(null);
   const [weather, setWeather] = useState(null);
@@ -134,12 +152,21 @@ const LocationCoordinates = ({ pincode, lat, lon }) => {
         const weatherData = await weatherResponse.json();
 
         setWeather({
-          dailyForecasts: weatherData.daily.slice(0, 5).map((day) => ({
+          current: {
+            temperature: weatherData.current.temp,
+            humidity: weatherData.current.humidity,
+            windSpeed: weatherData.current.wind_speed,
+            description: weatherData.current.weather[0].description,
+            icon: weatherData.current.weather[0].icon
+          },
+          dailyForecasts: weatherData.daily.slice(1, 6).map((day) => ({
             date: new Date(day.dt * 1000).toLocaleDateString(),
             summary: day.summary,
             temperature: `${day.temp.day}°C`,
             humidity: `${day.humidity}%`,
-            windSpeed: `${day.wind_speed} m/s`
+            windSpeed: `${day.wind_speed} m/s`,
+            description:`${day.weather[0].description}`,
+            icon:`${day.weather[0].icon}`
           }))
         });
       } catch (error) {
@@ -151,30 +178,43 @@ const LocationCoordinates = ({ pincode, lat, lon }) => {
   }, [pincode, lat, lon]);
 
   return (
-    <div>
-      {coordinates && (
-        <div>
-          <h3>Coordinates:</h3>
-          <p>Latitude: {coordinates.lat}</p>
-          <p>Longitude: {coordinates.lon}</p>
-        </div>
-      )}
+    <>
       {weather && (
-        <div>
-          <h3>5-Day Weather Forecast:</h3>
-          {weather.dailyForecasts.map((day, index) => (
-            <div key={index} style={{ marginBottom: '10px', borderBottom: '1px solid #ccc', paddingBottom: '5px' }}>
-              <p><strong>{day.date}</strong></p>
-              <p>{day.summary}</p>
-              <p>Temperature: {day.temperature}</p>
-              <p>Humidity: {day.humidity}</p>
-              <p>Wind Speed: {day.windSpeed}</p>
-            </div>
-          ))}
-        </div>
+        <>
+          {/* Current Weather */}
+          <div style={{ flex: 1, padding: '20px', backgroundColor: '#ffffff', borderRadius: '8px', marginRight: '10px' }}>
+            <h3>Current Weather</h3>
+            <p><strong>Temperature:</strong> {weather.current.temperature}°C</p>
+            <p><strong>Humidity:</strong> {weather.current.humidity}%</p>
+            <p><strong>Wind Speed:</strong> {weather.current.windSpeed} m/s</p>
+            <p><strong>Description:</strong> {weather.current.description}</p>
+            <img src={require(`../assets/${weather.current.icon}.png`)} alt="Weather icon" />
+          </div>
+  
+          {/* 5-Day Forecast */}
+          <div style={{ flex: 1, padding: '20px', backgroundColor: '#ffffff', borderRadius: '8px' }}>
+            <h3>5-Day Weather Forecast</h3>
+            {weather.dailyForecasts.map((day, index) => (
+              <div key={index} style={{ borderBottom: '1px solid #ccc', paddingBottom: '5px', marginBottom: '10px' }}>
+                <p><strong>{day.date}</strong></p>
+                <p>{day.summary}</p>
+                <p><strong>Temperature:</strong> {day.temperature}</p>
+                <p><strong>Humidity:</strong> {day.humidity}</p>
+                <p><strong>Wind Speed:</strong> {day.windSpeed} </p>
+                <p><strong>Description:</strong> {day.description}</p>
+                <img src={require(`../assets/${day.icon}.png`)} alt="Weather icon" />
+              </div>
+            ))}
+          </div>
+        </>
       )}
-    </div>
+    </>
   );
+  
+  
+  
+  
+  
 };
 
 export default LocationSearch;
